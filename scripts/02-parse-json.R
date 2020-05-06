@@ -2,8 +2,9 @@ library(here)
 library(glue)
 library(jsonlite)
 library(furrr)
+library(stringr)
 
-plan(multisession, parallel::detectCores() - 1)
+plan(multicore, workers = parallel::detectCores() - 1)
 
 ##### parameters to change -----------------------------------------------------
 
@@ -17,21 +18,20 @@ raw_data_paths <- list.files(
   full.names = TRUE
 )
 
-file_names <- stringr::str_remove(
-  raw_data_paths,
-  paste0(here(glue("data-raw/{version}")), "/")
-)
+file_names <- raw_data_paths %>%
+  str_remove(paste0(here(glue("data-raw/{version}")), "/")) %>%
+  str_remove(".gz")
 
-clean_single_file <- function(index) {
+clean_single_file <- function(raw_path, name) {
 
-  clean_data_path <- here(glue("data/{version}/{file_names[index]}.rds"))
+  clean_data_path <- here(glue("data/{version}/{name}.rds"))
 
   if (!file.exists(clean_data_path)) {
-    df <- stream_in(gzfile(raw_data_paths[index]))
+    df <- stream_in(gzfile(raw_path))
     readr::write_rds(df, clean_data_path)
   }
 }
 
-future_map(raw_data_paths, clean_single_file)
+future_map2(raw_data_paths, file_names, clean_single_file)
 
 plan(sequential)
