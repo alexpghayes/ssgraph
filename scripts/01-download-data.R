@@ -1,6 +1,11 @@
 library(here)
 library(glue)
 library(jsonlite)
+library(furrr)
+library(progressr)
+library(furrr)
+
+plan(multisession, parallel::detectCores() - 1)
 
 ##### parameters to change -----------------------------------------------------
 
@@ -25,8 +30,9 @@ if (os == "Windows") {
   manifest <- c("sample-S2-records.gz", "license.txt")
 }
 
-for (file in setdiff(manifest, "license.txt")) {
+data_files <- setdiff(manifest, "license.txt")
 
+download_file <- function(file) {
   url <- glue("{base_url}/{version}/{file}")
   destination <- here(glue("data-raw/{version}/{file}"))
 
@@ -35,5 +41,13 @@ for (file in setdiff(manifest, "license.txt")) {
   }
 }
 
-con <- url("http://1usagov.measuredvoice.com/bitly_archive/usagov_bitly_data2013-05-17-1368832207.gz")
-mydata <- jsonlite::stream_in(gzcon(con))
+with_progress({
+  p <- progressor(along = data_files)
+
+  future_map(data_files, ~{
+    download_file(.x)
+    p()
+  })
+})
+
+plan(sequential)
