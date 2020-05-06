@@ -4,7 +4,7 @@ library(jsonlite)
 library(furrr)
 library(stringr)
 
-plan(multicore, workers = parallel::detectCores() - 1)
+plan(multisession, workers = parallel::detectCores() - 1)
 
 ##### parameters to change -----------------------------------------------------
 
