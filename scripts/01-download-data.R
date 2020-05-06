@@ -1,11 +1,5 @@
 library(here)
 library(glue)
-library(jsonlite)
-library(furrr)
-library(progressr)
-library(furrr)
-
-plan(multisession, parallel::detectCores() - 1)
 
 ##### parameters to change -----------------------------------------------------
 
@@ -30,9 +24,8 @@ if (os == "Windows") {
   manifest <- c("sample-S2-records.gz", "license.txt")
 }
 
-data_files <- setdiff(manifest, "license.txt")
+for (file in setdiff(manifest, "license.txt")) {
 
-download_file <- function(file) {
   url <- glue("{base_url}/{version}/{file}")
   destination <- here(glue("data-raw/{version}/{file}"))
 
@@ -40,14 +33,3 @@ download_file <- function(file) {
     download.file(url, destination)
   }
 }
-
-with_progress({
-  p <- progressor(along = data_files)
-
-  future_map(data_files, ~{
-    download_file(.x)
-    p()
-  })
-})
-
-plan(sequential)
