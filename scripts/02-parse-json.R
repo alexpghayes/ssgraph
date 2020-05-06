@@ -1,12 +1,9 @@
 library(here)
 library(glue)
 library(jsonlite)
-library(future)
-library(progressr)
 library(furrr)
 
 plan(multisession, parallel::detectCores() - 1)
-
 
 ##### parameters to change -----------------------------------------------------
 
@@ -26,21 +23,15 @@ file_names <- stringr::str_remove(
 )
 
 clean_single_file <- function(index) {
-  df <- stream_in(gzfile(raw_data_paths[index]))
+
   clean_data_path <- here(glue("data/{version}/{file_names[index]}.rds"))
-  readr::write_rds(df, clean_data_path)
+
+  if (!file.exists(clean_data_path)) {
+    df <- stream_in(gzfile(raw_data_paths[index]))
+    readr::write_rds(df, clean_data_path)
+  }
 }
 
-x <- seq_along(raw_data_paths)
-
-with_progress({
-  p <- progressor(along = x)
-
-  future_map(x, ~{
-
-    clean_single_file(.x)
-    p()
-  })
-})
+future_map(raw_data_paths, clean_single_file)
 
 plan(sequential)
