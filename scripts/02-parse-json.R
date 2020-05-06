@@ -4,7 +4,7 @@ library(jsonlite)
 library(furrr)
 library(stringr)
 
-plan(multisession, workers = max(parallel::detectCores() - 1, 6))
+plan(multisession, workers = min(parallel::detectCores() - 1, 6))
 
 ##### parameters to change -----------------------------------------------------
 
