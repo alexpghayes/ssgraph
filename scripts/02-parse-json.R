@@ -3,8 +3,9 @@ library(glue)
 library(jsonlite)
 library(furrr)
 library(stringr)
+library(dplyr)
 
-plan(multisession, workers = min(parallel::detectCores() - 1, 6))
+plan(multicore, workers = min(parallel::detectCores() - 1, 6))
 
 ##### parameters to change -----------------------------------------------------
 
@@ -25,6 +26,7 @@ file_names <- raw_data_paths %>%
 clean_single_file <- function(raw_path, name, pg = 500) {
 
   clean_data_path <- here(glue("data/{version}/json/{name}.json"))
+  clean_data_con <- file(clean_data_path)
 
   handler <- function(df) {
     df <- filter(df, map_dbl(inCitations, length) > 0)
@@ -35,9 +37,8 @@ clean_single_file <- function(raw_path, name, pg = 500) {
   if (!file.exists(clean_data_path)) {
     stream_in(
       gzfile(raw_path),
-      handler,
-      pagesize = pg,
-      simplifyVector = TRUE
+      handler = handler,
+      pagesize = pg
     )
   }
 }
