@@ -5,9 +5,11 @@ library(furrr)
 library(stringr)
 library(dplyr)
 
-plan(multicore, workers = min(parallel::detectCores() - 1, 6))
+plan(multisession, workers = min(parallel::detectCores() - 1, 6))
 
 ##### parameters to change -----------------------------------------------------
+
+# also need to update clean_single_file signature
 
 version <- "2020-04-10"
 
@@ -23,7 +25,7 @@ file_names <- raw_data_paths %>%
   str_remove(paste0(here(glue("data-raw/{version}")), "/")) %>%
   str_remove(".gz")
 
-clean_single_file <- function(raw_path, name, pg = 500) {
+clean_single_file <- function(raw_path, name, pg = 500, version = "2020-04-10") {
 
   clean_data_path <- here(glue("data/{version}/json/{name}.json"))
   clean_data_con <- file(clean_data_path)
