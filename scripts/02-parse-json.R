@@ -15,7 +15,7 @@ if (length(args) < 1) {
   cores <- round(args[[1]])
 }
 
-plan(multicore, workers = cores)
+plan(multiprocess, workers = cores)
 
 ##### parameters to change -----------------------------------------------------
 
