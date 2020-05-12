@@ -12,7 +12,7 @@ if (length(args) < 1) {
   cores <- min(parallel::detectCores() - 1, 6)
   cat(glue("Defaulting to {cores} cores."))
 } else {
-  cores <- args[[1]]
+  cores <- round(args[[1]])
 }
 
 plan(multicore, workers = cores)
