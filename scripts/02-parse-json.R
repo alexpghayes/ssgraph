@@ -4,18 +4,7 @@ library(jsonlite)
 library(furrr)
 library(dplyr)
 
-##### command line args blarghs ------------------------------------------------
-
-args <- commandArgs(trailingOnly = TRUE)
-
-if (length(args) < 1) {
-  cores <- min(parallel::detectCores() - 1, 6)
-  cat(glue("Defaulting to {cores} cores."))
-} else {
-  cores <- round(args[[1]])
-}
-
-plan(multiprocess, workers = cores)
+plan(multisession, workers = min(parallel::detectCores() - 1, 16))
 
 ##### parameters to change -----------------------------------------------------
 
