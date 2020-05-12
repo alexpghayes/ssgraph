@@ -43,8 +43,6 @@ clean_single_file <- function(raw_path, name, pg = 500) {
   }
 }
 
-clean_single_file(raw_data_paths, file_names)
-
 future_map2(raw_data_paths, file_names, clean_single_file)
 
 plan(sequential)
