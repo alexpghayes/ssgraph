@@ -2,10 +2,20 @@ library(here)
 library(glue)
 library(jsonlite)
 library(furrr)
-library(stringr)
 library(dplyr)
 
-plan(multisession, workers = min(parallel::detectCores() - 1, 6))
+##### command line args blarghs ------------------------------------------------
+
+args <- commandArgs(trailingOnly = TRUE)
+
+if (length(args) < 1) {
+  cores <- min(parallel::detectCores() - 1, 6)
+  cat(glue("Defaulting to {cores} cores."))
+} else {
+  cores <- args[[1]]
+}
+
+plan(multicore, workers = cores)
 
 ##### parameters to change -----------------------------------------------------
 
@@ -22,25 +32,28 @@ raw_data_paths <- list.files(
 )
 
 file_names <- raw_data_paths %>%
-  str_remove(paste0(here(glue("data-raw/{version}")), "/")) %>%
-  str_remove(".gz")
+  stringr::str_remove(paste0(here(glue("data-raw/{version}")), "/")) %>%
+  stringr::str_remove(".gz")
 
-clean_single_file <- function(raw_path, name, pg = 500, version = "2020-04-10") {
+clean_single_file <- function(raw_path, name, version = "2020-04-10") {
 
   clean_data_path <- here(glue("data/{version}/json/{name}.json"))
-  clean_data_con <- file(clean_data_path)
 
   handler <- function(df) {
-    df <- filter(df, map_dbl(inCitations, length) > 0)
+    df <- filter(df, purrr::map_dbl(inCitations, length) > 0)
     df <- select(df, -c(entities:pmid), -c(s2Url:authors), -pdfUrls, -sources, -doiUrl, -venue)
-    stream_out(df, clean_data_con, pagesize = pg)
+    stream_out(df, clean_data_con)
   }
 
   if (!file.exists(clean_data_path)) {
+
+    clean_data_con <- file(clean_data_path, open = "wb")
+    on.exit(close(clean_data_con))
+
     stream_in(
       gzfile(raw_path),
       handler = handler,
-      pagesize = pg
+      pagesize = 20000
     )
   }
 }
