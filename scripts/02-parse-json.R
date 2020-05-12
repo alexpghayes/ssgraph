@@ -24,12 +24,22 @@ file_names <- raw_data_paths %>%
   stringr::str_remove(paste0(here(glue("data-raw/{version}")), "/")) %>%
   stringr::str_remove(".gz")
 
+allowed_fields <- c(
+  "Mathematics",
+  "Computer Science",
+  "Economics"
+)
+
 clean_single_file <- function(raw_path, name, version = "2020-04-10") {
 
   clean_data_path <- here(glue("data/{version}/json/{name}.json"))
 
   handler <- function(df) {
-    df <- filter(df, purrr::map_dbl(inCitations, length) > 0)
+    df <- filter(
+      df,
+      purrr::map_dbl(inCitations, length) > 0,
+      purrr::map_lgl(fieldsOfStudy, ~any(.x %in% allowed_fields))
+    )
     df <- select(df, -c(entities:pmid), -c(s2Url:authors), -pdfUrls, -sources, -doiUrl, -venue)
     stream_out(df, clean_data_con)
   }

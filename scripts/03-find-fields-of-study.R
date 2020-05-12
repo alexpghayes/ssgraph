@@ -31,6 +31,7 @@ for (path in json_paths) {
     handler = handler,
     pagesize = 20000
   )
-
 }
+
+# we're gonna go with Mathematics, Computer Science and Economics for now
 
