@@ -31,7 +31,7 @@ clean_single_file <- function(raw_path, name, pg = 500) {
   handler <- function(df) {
     df <- filter(df, map_dbl(inCitations, length) > 0)
     df <- select(df, -c(entities:pmid), -c(s2Url:authors), -pdfUrls, -sources, -doiUrl, -venue)
-    stream_out(df, file(clean_data_path), pagesize = pg)
+    stream_out(df, clean_data_con, pagesize = pg)
   }
 
   if (!file.exists(clean_data_path)) {
