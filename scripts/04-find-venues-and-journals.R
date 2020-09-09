@@ -19,7 +19,7 @@ json_paths <- list.files(
 
 handler <- function(df) {
 
-  print(df)
+  print(colnames(df))
 
   df <- select(df, journalName, journalVolume)
   df <- unnest(df, c(journalName, journalVolume))
