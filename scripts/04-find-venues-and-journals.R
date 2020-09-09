@@ -2,6 +2,7 @@ library(here)
 library(glue)
 library(furrr)
 library(dplyr)
+library(tidyr)
 library(jsonlite)
 
 plan(multisession, workers = min(parallel::detectCores() - 1, 24))
