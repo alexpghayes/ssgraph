@@ -21,8 +21,8 @@ handler <- function(df) {
 
   print(colnames(df))
 
-  df <- select(df, journalName, journalVolume)
-  df <- unnest(df, c(journalName, journalVolume))
+  df <- select(df, journalName)
+  df <- unnest(df, c(journalName))
   df <- distinct(df)
   stream_out(df)
 }
