@@ -24,7 +24,7 @@ file_names <- raw_data_paths %>%
   stringr::str_remove(paste0(here(glue("data-raw/{version}")), "/")) %>%
   stringr::str_remove(".gz")
 
-process_single_file <- function(raw_path, name, version = version) {
+process_single_file <- function(raw_path, name, version = "2020-04-10") {
 
   clean_data_path <- here(glue("output/{version}/journalName/{name}.json"))
 

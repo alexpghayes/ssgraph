@@ -30,7 +30,7 @@ allowed_fields <- c(
   "Economics"
 )
 
-clean_single_file <- function(raw_path, name, version = version) {
+clean_single_file <- function(raw_path, name, version = "2020-04-10") {
 
   clean_data_path <- here(glue("data/{version}/json/{name}.json"))
 
