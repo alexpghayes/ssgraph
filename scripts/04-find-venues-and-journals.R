@@ -36,17 +36,15 @@ process_single_file <- function(raw_path, name, version = "2020-04-10") {
     stream_out(df, clean_data_con)
   }
 
-  if (!file.exists(clean_data_path)) {
+  clean_data_con <- file(clean_data_path, open = "wb")
+  on.exit(close(clean_data_con))
 
-    clean_data_con <- file(clean_data_path, open = "wb")
-    on.exit(close(clean_data_con))
+  stream_in(
+    gzfile(raw_path),
+    handler = handler,
+    pagesize = 20000
+  )
 
-    stream_in(
-      gzfile(raw_path),
-      handler = handler,
-      pagesize = 20000
-    )
-  }
 }
 
 future_map2(raw_data_paths, file_names, process_single_file)
