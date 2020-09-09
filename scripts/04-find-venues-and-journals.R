@@ -1,8 +1,10 @@
 library(here)
 library(glue)
-library(jsonlite)
+library(furrr)
 library(dplyr)
-library(tidyr)
+library(jsonlite)
+
+plan(multisession, workers = min(parallel::detectCores() - 1, 24))
 
 ##### parameters to change -----------------------------------------------------
 
@@ -12,28 +14,41 @@ version <- "2020-04-10"
 
 ##### don't touch --------------------------------------------------------------
 
-json_paths <- list.files(
-  here(glue("data/{version}/json/")),
+raw_data_paths <- list.files(
+  here(glue("data-raw/{version}/")),
+  pattern = "gz",
   full.names = TRUE
 )
 
-con_out <- file(here("output/journal-names"), open = "wb")
+file_names <- raw_data_paths %>%
+  stringr::str_remove(paste0(here(glue("data-raw/{version}")), "/")) %>%
+  stringr::str_remove(".gz")
 
-handler <- function(df) {
-  df <- select(df, journalName)
-  df <- unnest(df, c(journalName))
-  df <- distinct(df)
-  stream_out(df, con_out)
+process_single_file <- function(raw_path, name, version = version) {
+
+  clean_data_path <- here(glue("output/{version}/journalName/{name}.json"))
+
+  handler <- function(df) {
+    df <- select(df, journalName)
+    df <- unnest(df, c(journalName))
+    df <- distinct(df)
+    stream_out(df, clean_data_con)
+  }
+
+  if (!file.exists(clean_data_path)) {
+
+    clean_data_con <- file(clean_data_path, open = "wb")
+    on.exit(close(clean_data_con))
+
+    stream_in(
+      gzfile(raw_path),
+      handler = handler,
+      pagesize = 20000
+    )
+  }
 }
 
-for (path in json_paths) {
+future_map2(raw_data_paths, file_names, process_single_file)
 
-  stream_in(
-    file(path),
-    handler = handler,
-    pagesize = 20000
-  )
-}
-
-# we're gonna go with Mathematics, Computer Science and Economics for now
+plan(sequential)
 
