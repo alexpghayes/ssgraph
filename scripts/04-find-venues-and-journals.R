@@ -17,14 +17,13 @@ json_paths <- list.files(
   full.names = TRUE
 )
 
+con_out <- file(here("output/journal-names"), open = "wb")
+
 handler <- function(df) {
-
-  print(colnames(df))
-
   df <- select(df, journalName)
   df <- unnest(df, c(journalName))
   df <- distinct(df)
-  stream_out(df)
+  stream_out(df, con_out)
 }
 
 for (path in json_paths) {
