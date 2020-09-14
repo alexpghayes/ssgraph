@@ -24,7 +24,7 @@ all_journals <- future_map_dfr(paths, read_from_path)
 
 write_csv(
   all_journals,
-  here("output/{version}/all_journals.csv")
+  here(glue("output/{version}/all_journals.csv"))
 )
 
 plan(sequential)
