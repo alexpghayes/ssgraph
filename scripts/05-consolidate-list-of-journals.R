@@ -5,7 +5,7 @@ library(tidyr)
 library(jsonlite)
 library(readr)
 library(furrr)
-plan(multisession, workers = 3)
+plan(multisession, workers = min(parallel::detectCores() - 1, 24))
 
 version <- "2020-04-10"
 
