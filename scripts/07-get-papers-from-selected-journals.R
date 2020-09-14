@@ -23,7 +23,15 @@ data_paths <- list.files(
   full.names = TRUE
 )
 
-file_names <- paste0("s2-", 1:length(data_paths))
+raw_data_paths <- list.files(
+  here(glue("data-raw/{version}/")),
+  pattern = "gz",
+  full.names = TRUE
+)
+
+file_names <- raw_data_paths %>%
+  stringr::str_remove(paste0(here(glue("data-raw/{version}")), "/")) %>%
+  stringr::str_remove(".gz")
 
 process_single_file <- function(path, name, version = "2020-04-10") {
 
