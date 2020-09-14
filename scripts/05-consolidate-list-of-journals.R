@@ -23,7 +23,7 @@ read_from_path <- function(path) {
 all_journals <- future_map_dfr(paths, read_from_path)
 
 write_csv(
-  all_journals,
+  distinct(all_journals),
   here(glue("output/{version}/all_journals.csv"))
 )
 
