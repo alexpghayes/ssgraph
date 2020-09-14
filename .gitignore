@@ -3,4 +3,4 @@
 .Rproj.user
 
 s2-corpus-*.gz
-data/*/journalNames/s2-corpus-*.json
+data
